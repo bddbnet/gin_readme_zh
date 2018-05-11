@@ -436,7 +436,7 @@ func main() {
 2 files uploaded!
 ```
 
-### Grouping routes
+### 路由分组
 
 ```go
 func main() {
@@ -462,26 +462,27 @@ func main() {
 }
 ```
 
-### Blank Gin without middleware by default
+### 不使用默认的中间件
 
-Use
+使用
 
 ```go
 r := gin.New()
 ```
 
-instead of
+替代
 
 ```go
 // Default With the Logger and Recovery middleware already attached
+// 默认情况已启用了log和恢复中间件
 r := gin.Default()
 ```
 
 
-### Using middleware
+### 使用中间件
 ```go
 func main() {
-	// Creates a router without any middleware by default
+	// 默认情况下创建一个没有任何中间件的路由器
 	r := gin.New()
 
 	// Global middleware
@@ -492,22 +493,22 @@ func main() {
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	r.Use(gin.Recovery())
 
-	// Per route middleware, you can add as many as you desire.
+	// 每个路由中,你可以使用任意多个中间件.
 	r.GET("/benchmark", MyBenchLogger(), benchEndpoint)
 
-	// Authorization group
+	// 权限组
 	// authorized := r.Group("/", AuthRequired())
-	// exactly the same as:
+	// 等同于:
 	authorized := r.Group("/")
-	// per group middleware! in this case we use the custom created
-	// AuthRequired() middleware just in the "authorized" group.
+	// 在这组路由中,我们使用自定义的中间件
+	// AuthRequired() 中间件只在 "authorized" 组中使用.
 	authorized.Use(AuthRequired())
 	{
 		authorized.POST("/login", loginEndpoint)
 		authorized.POST("/submit", submitEndpoint)
 		authorized.POST("/read", readEndpoint)
 
-		// nested group
+		// 嵌套组
 		testing := authorized.Group("testing")
 		testing.GET("/analytics", analyticsEndpoint)
 	}
@@ -517,17 +518,18 @@ func main() {
 }
 ```
 
-### How to write log file
+### 写log日志
 ```go
 func main() {
-    // Disable Console Color, you don't need console color when writing the logs to file.
+
+    // 禁用控制台颜色,写入日志文件时不需要添加颜色
     gin.DisableConsoleColor()
 
-    // Logging to a file.
+    // 写入到文件.
     f, _ := os.Create("gin.log")
     gin.DefaultWriter = io.MultiWriter(f)
 
-    // Use the following code if you need to write the logs to file and console at the same time.
+    // 如果您需要同时将日志写入文件和控制台，请使用以下代码
     // gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 
     router := gin.Default()
