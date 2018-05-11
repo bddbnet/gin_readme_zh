@@ -18,9 +18,9 @@ Gin是一个使用Go语言写的web框架.它拥有与Martini相似的API,但它
 ## 目录
 
 - [快速开始](#快速开始)
-- [性能基准](#benchmarks)
+- [性能基准](#基准测试)
 - [Gin v1.稳定版](#gin-v1-stable)
-- [开始使用](#start-using-it)
+- [开始使用](#开始使用)
 - [使用 jsoniter 构建](#build-with-jsoniter)
 - [API 例子](#api-examples)
     - [使用 GET,POST,PUT,PATCH,DELETE 和 OPTIONS](#using-get-post-put-patch-delete-and-options)
@@ -86,11 +86,11 @@ func main() {
 $ go run example.go
 ```
 
-## Benchmarks
+## 基准测试
 
-Gin uses a custom version of [HttpRouter](https://github.com/julienschmidt/httprouter)
+Gin 使用自定义版本的 [HttpRouter](https://github.com/julienschmidt/httprouter)
 
-[See all benchmarks](/BENCHMARKS.md)
+[查看所有测试结果](https://github.com/gin-gonic/gin/blob/master/BENCHMARKS.md)
 
 Benchmark name                              | (1)        | (2)         | (3) 		    | (4)
 --------------------------------------------|-----------:|------------:|-----------:|---------:
@@ -122,10 +122,10 @@ BenchmarkTigerTonic_GithubAll               |    1000    |  1439483    |  239104
 BenchmarkTraffic_GithubAll                  |     100    | 11383067    | 2659329    | 21848
 BenchmarkVulcan_GithubAll                   |    5000    |   394253    |   19894    |   609
 
-- (1): Total Repetitions achieved in constant time, higher means more confident result
-- (2): Single Repetition Duration (ns/op), lower is better
-- (3): Heap Memory (B/op), lower is better
-- (4): Average Allocations per Repetition (allocs/op), lower is better
+- (1): 持续时间达到的总重复次数越多，意味着结果越好
+- (2): 单次重复持续时间（ns / op）越低越好
+- (3): 堆内存（B / op）越低越好
+- (4): 平均每次重复分配 (allocs/op) 越低越好
 
 ## Gin v1. stable
 
@@ -135,77 +135,79 @@ BenchmarkVulcan_GithubAll                   |    5000    |   394253    |   19894
 - [x] Battle tested
 - [x] API frozen, new releases will not break your code.
 
-## Start using it
+## 开始使用
 
-1. Download and install it:
+1. 下载并安装它:
 
 ```sh
 $ go get github.com/gin-gonic/gin
 ```
 
-2. Import it in your code:
+2. 将其导入到您的代码中:
 
 ```go
 import "github.com/gin-gonic/gin"
 ```
 
-3. (Optional) Import `net/http`. This is required for example if using constants such as `http.StatusOK`.
+3. (可选的) 导入 `net/http`. 如果您要使用诸如`http.StatusOK`的常量.
 
 ```go
 import "net/http"
 ```
 
-### Use a vendor tool like [Govendor](https://github.com/kardianos/govendor)
+### 使用包管理工具 [Govendor](https://github.com/kardianos/govendor)
 
-1. `go get` govendor
+1. 使用`go get`获取 `govendor`
 
 ```sh
 $ go get github.com/kardianos/govendor
 ```
-2. Create your project folder and `cd` inside
+2. 创建并进入你的项目文件夹
 
 ```sh
 $ mkdir -p $GOPATH/src/github.com/myusername/project && cd "$_"
 ```
 
-3. Vendor init your project and add gin
+3. 初始化你的项目并添加gin
 
 ```sh
 $ govendor init
 $ govendor fetch github.com/gin-gonic/gin@v1.2
 ```
 
-4. Copy a starting template inside your project
+4. 复制一个初始模板到你的项目中
 
 ```sh
 $ curl https://raw.githubusercontent.com/gin-gonic/gin/master/examples/basic/main.go > main.go
 ```
 
-5. Run your project
+5. 运行你的项目
 
 ```sh
 $ go run main.go
 ```
 
-## Build with [jsoniter](https://github.com/json-iterator/go)
+## 使用 [jsoniter](https://github.com/json-iterator/go)
 
-Gin use `encoding/json` as default json package but you can change to [jsoniter](https://github.com/json-iterator/go) by build from other tags.
+
+Gin使用`dncoding/json` 作为默认的json包,但是你可以在构建的时候用[jsoniter](https://github.com/json-iterator/go) 替换它
 
 ```sh
 $ go build -tags=jsoniter .
 ```
 
-## API Examples
+## API示例
 
-### Using GET, POST, PUT, PATCH, DELETE and OPTIONS
+###  GET, POST, PUT, PATCH, DELETE 和 OPTIONS的用法
 
 ```go
 func main() {
-	// Disable Console Color
+	// 禁用控制台颜色
 	// gin.DisableConsoleColor()
 
-	// Creates a gin router with default middleware:
+	// 用默认的中间件创建一个gin路由器:
 	// logger and recovery (crash-free) middleware
+	// 记录 恢复(不崩溃) 中间件
 	router := gin.Default()
 
 	router.GET("/someGet", getting)
@@ -218,25 +220,27 @@ func main() {
 
 	// By default it serves on :8080 unless a
 	// PORT environment variable was defined.
+	// 服务默认使用8080端口,除非你自定义了端口号的环境变量
 	router.Run()
-	// router.Run(":3000") for a hard coded port
+	// router.Run(":3000") 指定端口号为 :3000
+
 }
 ```
 
 ### Parameters in path
-
+url路径中的参数
 ```go
 func main() {
 	router := gin.Default()
 
-	// This handler will match /user/john but will not match neither /user/ or /user
+	// 路由1 匹配 /user/john,但是不匹配 /user/ 或 /user
 	router.GET("/user/:name", func(c *gin.Context) {
 		name := c.Param("name")
 		c.String(http.StatusOK, "Hello %s", name)
 	})
 
-	// However, this one will match /user/john/ and also /user/john/send
-	// If no other routers match /user/john, it will redirect to /user/john/
+
+	// 路由2 这个会匹配 /user/john/ 和 /user/john/send
 	router.GET("/user/:name/*action", func(c *gin.Context) {
 		name := c.Param("name")
 		action := c.Param("action")
@@ -244,19 +248,29 @@ func main() {
 		c.String(http.StatusOK, message)
 	})
 
+	// 注意 /user/:name 和 /user/:name/是俩个完全不同的路由
+
 	router.Run(":8080")
 }
 ```
-
+```bash
+➜  ~ curl 127.0.0.1:8080/user/jack
+Hello jack
+➜  ~ curl 127.0.0.1:8080/user/jack/
+jack is
+➜  ~ curl 127.0.0.1:8080/user/jack/do
+jack is /do
+```
 ### Querystring parameters
-
+url中查询参数 如?q=123&key=789
 ```go
 func main() {
 	router := gin.Default()
 
 	// Query string parameters are parsed using the existing underlying request object.
-	// The request responds to a url matching:  /welcome?firstname=Jane&lastname=Doe
+	// 匹配url:  /welcome?firstname=Jane&lastname=Doe
 	router.GET("/welcome", func(c *gin.Context) {
+	    // 取firstname的值,不存在则设为Guest
 		firstname := c.DefaultQuery("firstname", "Guest")
 		lastname := c.Query("lastname") // shortcut for c.Request.URL.Query().Get("lastname")
 
@@ -265,9 +279,17 @@ func main() {
 	router.Run(":8080")
 }
 ```
+```bash
+➜  ~ curl -XGET "127.0.0.1:8080/welcome?firstname=Jane&lastname=Doe"
+Hello Jane Doe
+➜  ~ curl -XGET "127.0.0.1:8080/welcome"
+Hello Guest
+➜  ~ curl -XGET "127.0.0.1:8080/welcome?lastname=Doe"
+Hello Guest Doe
+```
 
 ### Multipart/Urlencoded Form
-
+Form表单提交的数据
 ```go
 func main() {
 	router := gin.Default()
@@ -285,9 +307,17 @@ func main() {
 	router.Run(":8080")
 }
 ```
+```bash
+➜  ~ curl -X POST http://127.0.0.1:8080/form_post -F nick=bddbnet -F message=hello
+{"message":"hello","nick":"bddbnet","status":"posted"}
+➜  ~ curl -X POST http://127.0.0.1:8080/form_post  -F message=hello
+{"message":"hello","nick":"anonymous","status":"posted"}
+➜  ~ curl -X POST http://127.0.0.1:8080/form_post -F nick=bddbnet
+{"message":"","nick":"bddbnet","status":"posted"}
+```
 
 ### Another example: query + post form
-
+url中查询参数+form表单数据
 ```
 POST /post?id=1234&page=1 HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
@@ -300,27 +330,43 @@ func main() {
 	router := gin.Default()
 
 	router.POST("/post", func(c *gin.Context) {
-
+		// url中查询数据
 		id := c.Query("id")
 		page := c.DefaultQuery("page", "0")
+
+		// post表单中数据
 		name := c.PostForm("name")
 		message := c.PostForm("message")
 
+		c.JSON(200, gin.H{
+		  "status": 	"posted",
+		  "id":			id,
+		  "page":		page,
+		  "name":    	name,
+		  "message": 	message,
+		})
 		fmt.Printf("id: %s; page: %s; name: %s; message: %s", id, page, name, message)
 	})
 	router.Run(":8080")
 }
 ```
 
+```bash
+➜  ~ curl -X POST 'http://127.0.0.1:8080/post?id=123&page=1' -F name=bddbnet -F message=hello
+{"id":"123","message":"hello","name":"bddbnet","page":"1","status":"posted"}
+➜  ~ curl -X POST 'http://127.0.0.1:8080/post?id=123' -F name=bddbnet -F message=hello
+{"id":"123","message":"hello","name":"bddbnet","page":"0","status":"posted"}
+➜  ~ curl -X POST 'http://127.0.0.1:8080/post' -F name=bddbnet -F message=hello
+{"id":"","message":"hello","name":"bddbnet","page":"0","status":"posted"}
+➜  ~ curl -X POST 'http://127.0.0.1:8080/post' -F name=bddbnet
+{"id":"","message":"","name":"bddbnet","page":"0","status":"posted"}
 ```
-id: 1234; page: 1; name: manu; message: this_is_great
-```
 
-### Upload files
+### 文件上传
 
-#### Single file
+#### 单个文件
 
-References issue [#774](https://github.com/gin-gonic/gin/issues/774) and detail [example code](examples/upload-file/single).
+参考问题 [#774](https://github.com/gin-gonic/gin/issues/774) 和细节[example code](examples/upload-file/single).
 
 ```go
 func main() {
@@ -332,8 +378,15 @@ func main() {
 		file, _ := c.FormFile("file")
 		log.Println(file.Filename)
 
+
+		savePath := "/tmp/"
+		dst := savePath + file.Filename
+
 		// Upload the file to specific dst.
-		// c.SaveUploadedFile(file, dst)
+		err := c.SaveUploadedFile(file, dst)
+		if err != nil {
+		   panic(err)
+		}
 
 		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
 	})
@@ -341,15 +394,14 @@ func main() {
 }
 ```
 
-How to `curl`:
-
 ```bash
-curl -X POST http://localhost:8080/upload \
-  -F "file=@/Users/appleboy/test.zip" \
+➜  ~ curl -X POST http://localhost:8080/upload \
+  -F "file=@/home/bddbnet/Pictures/bg002.jpg" \
   -H "Content-Type: multipart/form-data"
+'bg002.jpg' uploaded!
 ```
 
-#### Multiple files
+#### 多个文件
 
 See the detail [example code](examples/upload-file/multiple).
 
@@ -362,26 +414,26 @@ func main() {
 		// Multipart form
 		form, _ := c.MultipartForm()
 		files := form.File["upload[]"]
+		savePath := "/tmp/"
 
 		for _, file := range files {
-			log.Println(file.Filename)
+		   log.Println(file.Filename)
 
-			// Upload the file to specific dst.
-			// c.SaveUploadedFile(file, dst)
+		   dst := savePath + file.Filename
+		  // Upload the file to specific dst.
+		  c.SaveUploadedFile(file, dst)
 		}
 		c.String(http.StatusOK, fmt.Sprintf("%d files uploaded!", len(files)))
 	})
 	router.Run(":8080")
 }
 ```
-
-How to `curl`:
-
 ```bash
-curl -X POST http://localhost:8080/upload \
-  -F "upload[]=@/Users/appleboy/test1.zip" \
-  -F "upload[]=@/Users/appleboy/test2.zip" \
-  -H "Content-Type: multipart/form-data"
+➜  ~ curl -X POST "http://localhost:8080/upload"  \
+ -F "upload[]=@/home/bddbnet/Pictures/bg002.jpg" \
+ -F "upload[]=@/home/bddbnet/a.sh"  \
+ -H "Content-Type: multipart/form-data"
+2 files uploaded!
 ```
 
 ### Grouping routes
