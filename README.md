@@ -23,12 +23,12 @@ Gin是一个使用Go语言写的web框架.它拥有与Martini相似的API,但它
 - [开始使用](#开始使用)
 - [使用 jsoniter 构建](#build-with-jsoniter)
 - [API 例子](#api-examples)
-    - [使用 GET,POST,PUT,PATCH,DELETE 和 OPTIONS](#using-get-post-put-patch-delete-and-options)
-    - [路径中的参数](#parameters-in-path)
-    - [字符串中的查询参数](#querystring-parameters)
-    - [表单](#multiparturlencoded-form)
-    - [请求参数+表单](#another-example-query--post-form)
-    - [上传文件](#upload-files)
+    - [GET, POST, PUT, PATCH, DELETE 和 OPTIONS的用法](#GET, POST, PUT, PATCH, DELETE 和 OPTIONS的用法)
+    - [url路径中的参数](#url路径中的参数)
+    - [url中的查询参数](#url中的查询参数)
+    - [Form表单提交的数据](#Form表单提交的数据)
+    - [url中查询参数+form表单数据](#url中查询参数+form表单数据)
+    - [文件上传](#文件上传)
     - [路由分组](#grouping-routes)
     - [默认情况下没有中间件](#blank-gin-without-middleware-by-default)
     - [使用中间件](#using-middleware)
@@ -227,8 +227,8 @@ func main() {
 }
 ```
 
-### Parameters in path
-url路径中的参数
+### url路径中的参数
+
 ```go
 func main() {
 	router := gin.Default()
@@ -261,8 +261,8 @@ jack is
 ➜  ~ curl 127.0.0.1:8080/user/jack/do
 jack is /do
 ```
-### Querystring parameters
-url中查询参数 如?q=123&key=789
+### url中的查询参数
+ 如?q=123&key=789
 ```go
 func main() {
 	router := gin.Default()
@@ -288,8 +288,8 @@ Hello Guest
 Hello Guest Doe
 ```
 
-### Multipart/Urlencoded Form
-Form表单提交的数据
+### Form表单提交的数据
+
 ```go
 func main() {
 	router := gin.Default()
@@ -316,8 +316,8 @@ func main() {
 {"message":"","nick":"bddbnet","status":"posted"}
 ```
 
-### Another example: query + post form
-url中查询参数+form表单数据
+### url中查询参数+form表单数据
+
 ```
 POST /post?id=1234&page=1 HTTP/1.1
 Content-Type: application/x-www-form-urlencoded
@@ -541,25 +541,28 @@ func main() {
 }
 ```
 
-### Model binding and validation
+### 模型绑定和验证
+Model binding and validation
 
-To bind a request body into a type, use model binding. We currently support binding of JSON, XML and standard form values (foo=bar&boo=baz).
+使用模型绑定,将请求主体绑定到一个类型.我们目前支持JSON的绑定,XML和标准表单值(foo=bar&boo=baz).
 
-Gin uses [**go-playground/validator.v8**](https://github.com/go-playground/validator) for validation. Check the full docs on tags usage [here](http://godoc.org/gopkg.in/go-playground/validator.v8#hdr-Baked_In_Validators_and_Tags).
+Gin 采用 [**go-playground/validator.v8**](https://github.com/go-playground/validator)进行验证. 点击 [这里](http://godoc.org/gopkg.in/go-playground/validator.v8#hdr-Baked_In_Validators_and_Tags)查看所有文档.
 
-Note that you need to set the corresponding binding tag on all fields you want to bind. For example, when binding from JSON, set `json:"fieldname"`.
+请注意,您需要在所有要绑定的字段上设置相应的绑定标签.例如从JSON绑定时, 添加结构体字段标签 `json:"fieldname"`.
 
-Also, Gin provides two sets of methods for binding:
-- **Type** - Must bind
-  - **Methods** - `Bind`, `BindJSON`, `BindQuery`
-  - **Behavior** - These methods use `MustBindWith` under the hood. If there is a binding error, the request is aborted with `c.AbortWithError(400, err).SetType(ErrorTypeBind)`. This sets the response status code to 400 and the `Content-Type` header is set to `text/plain; charset=utf-8`. Note that if you try to set the response code after this, it will result in a warning `[GIN-debug] [WARNING] Headers were already written. Wanted to override status code 400 with 422`. If you wish to have greater control over the behavior, consider using the `ShouldBind` equivalent method.
-- **Type** - Should bind
-  - **Methods** - `ShouldBind`, `ShouldBindJSON`, `ShouldBindQuery`
-  - **Behavior** - These methods use `ShouldBindWith` under the hood. If there is a binding error, the error is returned and it is the developer's responsibility to handle the request and error appropriately.
+此外，Gin提供了两套绑定方法:
+- **种类** - Must bind
+  - **方法名** - `Bind`, `BindJSON`, `BindQuery`
+  - **Behavior** - 这些方法在底层使用`MustBindWith`。如果存在绑定错误，则使用`c.AbortWithError（400，err）.SetType（ErrorTypeBind）`中止请求。这将响应状态码设置为400，并且将`Content-Type`标头设置为`text/plain; charset=utf-8`。请注意，如果您尝试在此之后设置响应代码，则会导致警告`[GIN-debug] [WARNING] Headers were already written(请求头已经设置). Wanted to override status code 400 with 422(企图用422覆盖状态码400)`。如果你希望更好地控制行为，可以考虑使用`ShouldBind`等价的方法。
 
-When using the Bind-method, Gin tries to infer the binder depending on the Content-Type header. If you are sure what you are binding, you can use `MustBindWith` or `ShouldBindWith`.
+- **种类** - Should bind
+  - **方法名** - `ShouldBind`, `ShouldBindJSON`, `ShouldBindQuery`
+  - **Behavior** - 这些方法使用`ShouldBindWith`。如果存在绑定错误，则返回错误，并且开发人员有责任正确处理请求和错误
 
-You can also specify that specific fields are required. If a field is decorated with `binding:"required"` and has a empty value when binding, an error will be returned.
+使用绑定方法时, Gin试图根据Content-Type头推断绑定数据的类型. 如果你能够确认绑定数据的类型, 可以使用 `MustBindWith` 或 `ShouldBindWith`绑定数据.
+
+
+你可以指定需要绑定数据的字段. 如果这个字段存在这个 `binding:"required"`的结构体字段标签并且在绑定时字段的值为空值时, 将会返回一个错误.
 
 ```go
 // Binding from JSON
@@ -627,9 +630,9 @@ $ curl -v -X POST \
 {"error":"Key: 'Login.Password' Error:Field validation for 'Password' failed on the 'required' tag"}
 ```
 
-### Custom Validators
+### 自定义验证器
 
-It is also possible to register custom validators. See the [example code](examples/custom-validation/server.go).
+你也可以注册自定义验证器. 点这里查看 [例子](examples/custom-validation/server.go).
 
 [embedmd]:# (examples/custom-validation/server.go go)
 ```go
@@ -692,12 +695,12 @@ $ curl "localhost:8085/bookable?check_in=2018-03-08&check_out=2018-03-09"
 {"error":"Key: 'Booking.CheckIn' Error:Field validation for 'CheckIn' failed on the 'bookabledate' tag"}
 ```
 
-[Struct level validations](https://github.com/go-playground/validator/releases/tag/v8.7) can also be registed this way.
-See the [struct-lvl-validation example](examples/struct-lvl-validations) to learn more.
+[结构级别验证](https://github.com/go-playground/validator/releases/tag/v8.7) 也可以用这种方式注册.
+点击这里查看 [例子](examples/struct-lvl-validations) .
 
-### Only Bind Query String
+### 仅绑定Url查询字符串
 
-`ShouldBindQuery` function only binds the query params and not the post data. See the [detail information](https://github.com/gin-gonic/gin/issues/742#issuecomment-315953017).
+`ShouldBindQuery` 函数只绑定查询参数而不是post的数据. 详情点击这里 [查看](https://github.com/gin-gonic/gin/issues/742#issuecomment-315953017).
 
 ```go
 package main
@@ -726,12 +729,16 @@ func startPage(c *gin.Context) {
 		log.Println(person.Name)
 		log.Println(person.Address)
 	}
-	c.String(200, "Success")
+	c.JSON(http.StatusOK, gin.H{"Name": person.Name, "Address": person.Address})
 }
 
 ```
+```bash
+~ curl 'http://127.0.0.1:8080/testing?name=tom&address=none'
+{"Address":"none","Name":"tom"}
+```
 
-### Bind Query String or Post Data
+### 绑定Url查询字符串或Post的数据
 
 See the [detail information](https://github.com/gin-gonic/gin/issues/742#issuecomment-264681292).
 
@@ -774,7 +781,7 @@ Test it with:
 $ curl -X GET "localhost:8085/testing?name=appleboy&address=xyz&birthday=1992-03-15"
 ```
 
-### Bind HTML checkboxes
+### 绑定 HTML checkboxes
 
 See the [detail information](https://github.com/gin-gonic/gin/issues/129#issuecomment-124260092)
 
@@ -820,7 +827,7 @@ result:
 {"color":["red","green","blue"]}
 ```
 
-### Multipart/Urlencoded binding
+### Multipart/Urlencoded 绑定
 
 ```go
 package main
@@ -859,7 +866,7 @@ Test it with:
 $ curl -v --form user=user --form password=password http://localhost:8080/login
 ```
 
-### XML, JSON and YAML rendering
+### XML, JSON and YAML 绑定
 
 ```go
 func main() {
@@ -900,13 +907,13 @@ func main() {
 
 #### SecureJSON
 
-Using SecureJSON to prevent json hijacking. Default prepends `"while(1),"` to response body if the given struct is array values.
+使用SecureJSON来防止json劫持. 如果返回的结果是数组则会在返回数据前添加默认的前缀 `"while(1),"`.
 
 ```go
 func main() {
 	r := gin.Default()
 
-	// You can also use your own secure json prefix
+	// 你也可以自定义你自己的安全json前缀
 	// r.SecureJsonPrefix(")]}',\n")
 
 	r.GET("/someJSON", func(c *gin.Context) {
@@ -920,15 +927,22 @@ func main() {
 	r.Run(":8080")
 }
 ```
+```bash
+➜  hosttodo curl 'http://127.0.0.1:8080/someJSON' 
+while(1);["lena","austin","foo"]
+```
+
 #### JSONP
 
-Using JSONP to request data from a server  in a different domain. Add callback to response body if the query parameter callback exists.
+使用JSONP从不同域中的服务器请求数据。如果查询参数回调存在，请将回调添加到响应主体。
 
 ```go
 func main() {
 	r := gin.Default()
-
-	r.GET("/JSONP?callback=x", func(c *gin.Context) {
+	
+	// 这里假定访问的url地址是 /JSONP?callback=x
+	// url中必须存在callback= 才会返回jsonp,否则返回json
+	r.GET("/JSONP", func(c *gin.Context) {
 		data := map[string]interface{}{
 			"foo": "bar",
 		}
@@ -942,6 +956,13 @@ func main() {
 	r.Run(":8080")
 }
 ```
+```bash
+➜  ~ curl 'http://127.0.0.1:8080/JSONP?callback=x'
+x({"foo":"bar"})
+➜  ~ curl 'http://127.0.0.1:8080/JSONP?call=x'    
+{"foo":"bar"}
+```
+
 
 ### Serving static files
 
@@ -1721,4 +1742,5 @@ Awesome project lists using [Gin](https://github.com/gin-gonic/gin) web framewor
 
 * [drone](https://github.com/drone/drone): Drone is a Continuous Delivery platform built on Docker, written in Go
 * [gorush](https://github.com/appleboy/gorush): A push notification server written in Go.
+
 
